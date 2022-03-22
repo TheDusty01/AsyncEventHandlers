@@ -12,7 +12,7 @@ The ``AsyncEventHandlerDelegate`` delegate is basically being used like the buil
 
 Declaring an event:
 ```cs
-public event AsyncEventHandlerDelegate<AsyncEventArgs>? MyEvent;
+public event AsyncEventHandlerDelegate? MyEvent;
 
 // Or with custom event args:
 public class MyAsyncEventArgs : AsyncEventArgs
@@ -27,13 +27,10 @@ Invoking the event:
 ```cs
 try
 {
-    if (MyEvent is not null)
-    {
-        await MyEvent.InvokeAsync(this, new AsyncEventArgs());
-        // or with a cancellation token
-        var cts = new CancellationTokenSource();
-        await MyEvent.InvokeAsync(this, new AsyncEventArgs(), cts.Token);
-    }
+    await MyEvent.InvokeAsync(this, new AsyncEventArgs());
+    // or with a cancellation token
+    var cts = new CancellationTokenSource();
+    await MyEvent.InvokeAsync(this, new AsyncEventArgs(), cts.Token);
 }
 catch (OperationCanceledException)
 {
@@ -53,7 +50,7 @@ Registering/Unregistering to the event:
 ```cs
 class WebsocketServer
 {
-    public event AsyncEventHandlerDelegate<AsyncEventArgs>? MyEvent;
+    public event AsyncEventHandlerDelegate? MyEvent;
 }
 
 var ws = new WebsocketServer();
@@ -76,7 +73,7 @@ The  ``AsyncEventHandler`` type is completely thread-safe, no matter how many ev
 
 Declaring an event:
 ```cs
-public AsyncEventHandler<AsyncEventArgs> MyEvent = new AsyncEventHandler<AsyncEventArgs>();
+public AsyncEventHandler MyEvent = new AsyncEventHandler();
 
 // Or with custom event args:
 public class MyAsyncEventArgs : AsyncEventArgs
@@ -91,7 +88,7 @@ Registering/Unregistering to the event:
 ```cs
 class WebsocketServer
 {
-    public AsyncEventHandler<AsyncEventArgs> MyEvent = new AsyncEventHandler<AsyncEventArgs>();
+    public AsyncEventHandler MyEvent = new AsyncEventHandler();
 }
 
 var ws = new WebsocketServer();

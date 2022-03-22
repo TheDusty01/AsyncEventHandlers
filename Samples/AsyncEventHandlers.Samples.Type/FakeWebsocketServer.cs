@@ -18,7 +18,7 @@ namespace AsyncEventHandlers.Samples.Type
 
     public class FakeWebsocketServer
     {
-        public AsyncEventHandler<AsyncEventArgs>? Started;
+        public AsyncEventHandler? Started;
         public AsyncEventHandler<ClientConnectedAsyncEventArgs> ClientConnected = new AsyncEventHandler<ClientConnectedAsyncEventArgs>();
         public AsyncEventHandler<MessageAsyncEventArgs> MessageReceived = new AsyncEventHandler<MessageAsyncEventArgs>();
 
@@ -31,8 +31,7 @@ namespace AsyncEventHandlers.Samples.Type
         {
             try
             {
-                if (Started is not null)
-                    await Started.InvokeAsync(this, new AsyncEventArgs(), cancellationToken);
+                await Started!.InvokeAsync(this, new AsyncEventArgs(), cancellationToken);
             }
             catch (Exception ex)
             {
@@ -41,15 +40,13 @@ namespace AsyncEventHandlers.Samples.Type
 
             // Simulate client connecting
             await Task.Delay(1000);
-            if (ClientConnected is not null)
-                await ClientConnected.InvokeAsync(this, new ClientConnectedAsyncEventArgs { ClientId = 1 }, cancellationToken);
+            await ClientConnected.InvokeAsync(this, new ClientConnectedAsyncEventArgs { ClientId = 1 }, cancellationToken);
 
             // Simulate client message
             await Task.Delay(1000);
             try
             {
-                if (MessageReceived is not null)
-                    await MessageReceived.InvokeAsync(this, new MessageAsyncEventArgs { Message = "Hello!" }, cancellationToken);
+                await MessageReceived.InvokeAsync(this, new MessageAsyncEventArgs { Message = "Hello!" }, cancellationToken);
             }
             catch (OperationCanceledException)
             {

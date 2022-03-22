@@ -16,7 +16,7 @@
 #pragma warning restore CS8604 // Possible nullreference
             ws.Started += Ws_Started_Second;
 
-            ws.Started.Register((s, e) =>
+            ws.Started?.Register((s, e) =>
             {
                 Console.WriteLine("Adding the started event via the register method also works!");
                 return Task.CompletedTask;
