@@ -16,6 +16,7 @@
     <SignAssembly>False</SignAssembly>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <RepositoryUrl>https://github.com/TheDusty01/AsyncEventHandlers</RepositoryUrl>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
