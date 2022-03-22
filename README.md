@@ -2,7 +2,7 @@
 This library provides true thread-safe asynchronus event handlers for .NET.\
 
 ## Setup
-Just install the latest release from [NuGet](https://www.nuget.org/packages/AsyncEventHandlers). Alternatively you can download it from the [Releases tab](https://github.com/TheDusty01/AsyncEventHandlers/releases) aswell.
+Just install the latest release from [NuGet](https://www.nuget.org/packages/AsyncEventHandlers) or from the [Packages tab](https://github.com/TheDusty01/AsyncEventHandlers/packages). Alternatively you can download it from the [Releases tab](https://github.com/TheDusty01/AsyncEventHandlers/releases) aswell.
 
 ## Usage
 Note that when registering/unregistering a lot from different threads, should consider using ``AsyncEventHandler`` instead of ``AsyncEventHandlerDelegate`` as the latter uses the built-in non thread-safe registering/unregistering mechanism.
