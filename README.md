@@ -1,5 +1,5 @@
 # AsyncEventHandlers
-This library provides true thread-safe asynchronus event handlers for .NET.\
+This library provides true thread-safe asynchronus event handlers for .NET.
 
 ## Setup
 Just install the latest release from [NuGet](https://www.nuget.org/packages/AsyncEventHandlers) or from the [Packages tab](https://github.com/TheDusty01/AsyncEventHandlers/packages). Alternatively you can download it from the [Releases tab](https://github.com/TheDusty01/AsyncEventHandlers/releases) aswell.
