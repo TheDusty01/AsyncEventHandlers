@@ -7,7 +7,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Company />
     <Authors>Dusty</Authors>
-    <Description>True thread-safe asynchronus eventhandlers for .NET</Description>
+    <Description>Faster and true thread-safe asynchronus event handlers for .NET</Description>
     <RepositoryType>git</RepositoryType>
     <PackageTags>eventhandler event handler async asynchronus await threadsafe thread safe fast delegate observeable subscriber</PackageTags>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
