@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{16F6
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncEventHandlers.Samples.Delegate", "Samples\Delegate\AsyncEventHandlers.Samples.Delegate.csproj", "{620BE409-12D3-4D5A-A9F1-872582641C2F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncEventHandlers.Samples.Type", "Samples\AsyncEventHandlers.Samples.Type\AsyncEventHandlers.Samples.Type.csproj", "{F8CEC263-2346-4506-BD37-4847B1E7EBE3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncEventHandlers.Samples.Type", "Samples\Type\AsyncEventHandlers.Samples.Type.csproj", "{F8CEC263-2346-4506-BD37-4847B1E7EBE3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

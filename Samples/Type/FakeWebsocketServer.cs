@@ -18,7 +18,7 @@ namespace AsyncEventHandlers.Samples.Type
 
     public class FakeWebsocketServer
     {
-        public AsyncEventHandler? Started;
+        public AsyncEventHandler<AsyncEventArgs> Started = default;
         public AsyncEventHandler<ClientConnectedAsyncEventArgs> ClientConnected = new AsyncEventHandler<ClientConnectedAsyncEventArgs>();
         public AsyncEventHandler<MessageAsyncEventArgs> MessageReceived = new AsyncEventHandler<MessageAsyncEventArgs>();
 

@@ -36,8 +36,8 @@ namespace AsyncEventHandlers
         /// <exception cref="OperationCanceledException"></exception>
         /// <exception cref="ObjectDisposedException"></exception>
         /// <exception cref="Exception"></exception>
-        /// <returns>A <see cref="Task"/> which represents the completion of all registered events.</returns>
-        public static async Task InvokeAsync(this AsyncEventHandlerDelegate asyncEventHandler, object? sender, AsyncEventArgs e, CancellationToken? cancellationToken = null)
+        /// <returns>A <see cref="ValueTask"/> which represents the completion of all registered events.</returns>
+        public static async ValueTask InvokeAsync(this AsyncEventHandlerDelegate asyncEventHandler, object? sender, AsyncEventArgs e, CancellationToken? cancellationToken = null)
         {
             if (asyncEventHandler is null)
             {
@@ -76,8 +76,8 @@ namespace AsyncEventHandlers
         /// <exception cref="OperationCanceledException"></exception>
         /// <exception cref="ObjectDisposedException"></exception>
         /// <exception cref="Exception"></exception>
-        /// <returns>A <see cref="Task"/> which represents the completion of all registered events.</returns>
-        public static async Task InvokeAsync<TEventArgs>(this AsyncEventHandlerDelegate<TEventArgs> asyncEventHandler, object? sender, TEventArgs e, CancellationToken? cancellationToken = null)
+        /// <returns>A <see cref="ValueTask"/> which represents the completion of all registered events.</returns>
+        public static async ValueTask InvokeAsync<TEventArgs>(this AsyncEventHandlerDelegate<TEventArgs> asyncEventHandler, object? sender, TEventArgs e, CancellationToken? cancellationToken = null)
             where TEventArgs : AsyncEventArgs
         {
             if (asyncEventHandler is null)
