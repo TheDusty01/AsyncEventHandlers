@@ -14,6 +14,16 @@ The  ``AsyncEventHandler`` type is completely thread-safe, no matter how many ev
 
 Declaring an event:
 ```cs
+private readonly AsyncEventHandler<AsyncEventArgs> myEvent = new AsyncEventHandler<AsyncEventArgs>();
+public event AsyncEvent<AsyncEventArgs> MyEvent
+{
+    add { myEvent.Register(value); }
+    remove { myEvent.Unregister(value); }
+}
+```
+
+You can also just expose the ``AsyncEventHandler`` struct directly but that way it is not treated as an C# event and subscribers outside of your class can even invoke your event.
+```cs
 public AsyncEventHandler<AsyncEventArgs> MyEvent = new AsyncEventHandler();
 public AsyncEventHandler<AsyncEventArgs> AnotherEvent;  // You can even do this!
 
@@ -23,22 +33,33 @@ public class MyAsyncEventArgs : AsyncEventArgs
     public string? Message { get; set; }
 }
 
-public AsyncEventHandlerDelegate<MyAsyncEventArgs> MyCustomEvent = new AsyncEventHandler<MyAsyncEventArgs>();
+public AsyncEventHandler<MyAsyncEventArgs> MyCustomEvent = new AsyncEventHandler<MyAsyncEventArgs>();
 ```
 
 Registering/Unregistering to the event:
 ```cs
 class WebsocketServer
 {
-    public AsyncEventHandler<AsyncEventArgs> MyEvent = new AsyncEventHandler<AsyncEventArgs>();
+    public AsyncEventHandler<AsyncEventArgs> MyExposedEvent = new AsyncEventHandler<AsyncEventArgs>();
+
+    private readonly AsyncEventHandler<AsyncEventArgs> myEvent = new AsyncEventHandler<AsyncEventArgs>();
+    public event AsyncEvent<AsyncEventArgs> MyEvent
+    {
+        add { myEvent.Register(value); }
+        remove { myEvent.Unregister(value); }
+    }
 }
 
 var ws = new WebsocketServer();
+// Event property
 ws.MyEvent += Ws_MyEvent;   // Register
 ws.MyEvent -= Ws_MyEvent;   // Unregister
+// Using the struct directly
+ws.MyExposedEvent += Ws_MyEvent;   // Register
+ws.MyExposedEvent -= Ws_MyEvent;   // Unregister
 // Or use the methods
-ws.MyEvent.Register(Ws_MyEvent);
-ws.MyEvent.Unregister(Ws_MyEvent);
+ws.MyExposedEvent.Register(Ws_MyEvent);
+ws.MyExposedEvent.Unregister(Ws_MyEvent);
 
 static Task Ws_MyEvent(object? sender, AsyncEventArgs e)
 {
@@ -51,14 +72,15 @@ static Task Ws_MyEvent(object? sender, AsyncEventArgs e)
 }
 ```
 
-Invoking the event:
+Invoking the event: \
+**Note:** Always call ``InvokeAsync`` on the ``AsyncEventHandler`` struct itself, not on the event!
 ```cs
 try
 {
-    await MyEvent.InvokeAsync(this, new AsyncEventArgs());
+    await myEvent.InvokeAsync(this, new AsyncEventArgs());
     // or with a cancellation token
     var cts = new CancellationTokenSource();
-    await MyEvent.InvokeAsync(this, new AsyncEventArgs(), cts.Token);
+    await myEvent.InvokeAsync(this, new AsyncEventArgs(), cts.Token);
 }
 catch (OperationCanceledException)
 {

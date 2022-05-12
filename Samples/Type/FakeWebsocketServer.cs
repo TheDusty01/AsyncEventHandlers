@@ -19,7 +19,12 @@ namespace AsyncEventHandlers.Samples.Type
     public class FakeWebsocketServer
     {
         public AsyncEventHandler<AsyncEventArgs> Started = default;
-        public AsyncEventHandler<ClientConnectedAsyncEventArgs> ClientConnected = new AsyncEventHandler<ClientConnectedAsyncEventArgs>();
+        private readonly AsyncEventHandler<ClientConnectedAsyncEventArgs> clientConnected = new AsyncEventHandler<ClientConnectedAsyncEventArgs>();
+        public event AsyncEvent<ClientConnectedAsyncEventArgs> ClientConnected
+        {
+            add { clientConnected.Register(value); }
+            remove { clientConnected.Unregister(value); }
+        }
         public AsyncEventHandler<MessageAsyncEventArgs> MessageReceived = new AsyncEventHandler<MessageAsyncEventArgs>();
 
         public void Run(CancellationToken cancellationToken)
@@ -40,7 +45,7 @@ namespace AsyncEventHandlers.Samples.Type
 
             // Simulate client connecting
             await Task.Delay(1000);
-            await ClientConnected.InvokeAsync(this, new ClientConnectedAsyncEventArgs { ClientId = 1 }, cancellationToken);
+            await clientConnected.InvokeAsync(this, new ClientConnectedAsyncEventArgs { ClientId = 1 }, cancellationToken);
 
             // Simulate client message
             await Task.Delay(1000);
