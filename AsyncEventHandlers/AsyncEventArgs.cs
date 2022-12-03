@@ -1,15 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 
-namespace AsyncEventHandlers
+namespace AsyncEventHandlers;
+
+/// <summary>
+/// The <see cref="CancellationToken"/> is automatically set.
+/// </summary>
+public interface IAsyncEventArgs
 {
-    /// <summary>
-    /// The <see cref="CancellationToken"/> is automatically set.
-    /// </summary>
-    public class AsyncEventArgs : EventArgs
-    {
-        public CancellationToken CancellationToken { get; internal set; }
-    }
+    CancellationToken CancellationToken { get; internal set; }
+}
+
+/// <inheritdoc cref="IAsyncEventArgs" />
+public class AsyncEventArgs : IAsyncEventArgs
+{
+    public CancellationToken CancellationToken { get; set; }
 }

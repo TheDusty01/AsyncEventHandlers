@@ -1,62 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace AsyncEventHandlers.Samples.Type;
 
-namespace AsyncEventHandlers.Samples.Type
+public class MessageData
 {
-    public class MessageAsyncEventArgs : AsyncEventArgs
+    public string? Message { get; set; }
+}
+
+public class ClientConnectedData
+{
+    public int ClientId { get; set; }
+}
+
+public class FakeWebsocketServer
+{
+    public AsyncEventHandler Started = default;
+    private readonly AsyncEventHandler<ClientConnectedData> clientConnected = new AsyncEventHandler<ClientConnectedData>();
+    public event AsyncEvent<ClientConnectedData> ClientConnected
     {
-        public string? Message { get; set; }
+        add { clientConnected.Register(value); }
+        remove { clientConnected.Unregister(value); }
+    }
+    public AsyncEventHandler<MessageData> MessageReceived = new AsyncEventHandler<MessageData>();
+
+    public void Run(CancellationToken cancellationToken)
+    {
+        _ = Task.Run(() => SimulateTest(cancellationToken), cancellationToken);
     }
 
-    public class ClientConnectedAsyncEventArgs : AsyncEventArgs
+    private async Task SimulateTest(CancellationToken cancellationToken)
     {
-        public int ClientId { get; set; }
-    }
-
-    public class FakeWebsocketServer
-    {
-        public AsyncEventHandler<AsyncEventArgs> Started = default;
-        private readonly AsyncEventHandler<ClientConnectedAsyncEventArgs> clientConnected = new AsyncEventHandler<ClientConnectedAsyncEventArgs>();
-        public event AsyncEvent<ClientConnectedAsyncEventArgs> ClientConnected
+        try
         {
-            add { clientConnected.Register(value); }
-            remove { clientConnected.Unregister(value); }
+            await Started!.InvokeAsync(cancellationToken);
         }
-        public AsyncEventHandler<MessageAsyncEventArgs> MessageReceived = new AsyncEventHandler<MessageAsyncEventArgs>();
-
-        public void Run(CancellationToken cancellationToken)
+        catch (Exception ex)
         {
-            _ = Task.Run(() => SimulateTest(cancellationToken), cancellationToken);
+            Console.WriteLine($"Started event threw an exception: {ex}");
         }
 
-        private async Task SimulateTest(CancellationToken cancellationToken)
+        // Simulate client connecting
+        await Task.Delay(1000);
+        await clientConnected.InvokeAsync(new ClientConnectedData { ClientId = 1 }, cancellationToken);
+
+        // Simulate client message
+        await Task.Delay(1000);
+        try
         {
-            try
-            {
-                await Started!.InvokeAsync(this, new AsyncEventArgs(), cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Started event threw an exception: {ex}");
-            }
-
-            // Simulate client connecting
-            await Task.Delay(1000);
-            await clientConnected.InvokeAsync(this, new ClientConnectedAsyncEventArgs { ClientId = 1 }, cancellationToken);
-
-            // Simulate client message
-            await Task.Delay(1000);
-            try
-            {
-                await MessageReceived.InvokeAsync(this, new MessageAsyncEventArgs { Message = "Hello!" }, cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                Console.WriteLine("Token was cancelled");
-            }
+            await MessageReceived.InvokeAsync(new MessageData { Message = "Hello!" }, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            Console.WriteLine("Token was cancelled");
         }
     }
 }

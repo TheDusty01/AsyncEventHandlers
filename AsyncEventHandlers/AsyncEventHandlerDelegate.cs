@@ -11,7 +11,7 @@ namespace AsyncEventHandlers
     /// <param name="sender"></param>
     /// <param name="e"></param>
     /// <returns>A <see cref="Task"/> that represents the event.</returns>
-    public delegate Task AsyncEventHandlerDelegate(object? sender, AsyncEventArgs e);
+    public delegate Task AsyncEventHandlerDelegate(object? sender, IAsyncEventArgs e);
 
     /// <summary>
     /// Represents the method that will handle an event when the event provides data.
@@ -20,7 +20,7 @@ namespace AsyncEventHandlers
     /// <param name="sender"></param>
     /// <param name="e"></param>
     /// <returns>A <see cref="Task"/> that represents the event.</returns>
-    public delegate Task AsyncEventHandlerDelegate<TEventArgs>(object? sender, TEventArgs e) where TEventArgs : AsyncEventArgs;
+    public delegate Task AsyncEventHandlerDelegate<TEventArgs>(object? sender, TEventArgs e) where TEventArgs : IAsyncEventArgs;
 
     public static class AsyncEventHandlerDelegateExtensions
     {
@@ -37,24 +37,23 @@ namespace AsyncEventHandlers
         /// <exception cref="ObjectDisposedException"></exception>
         /// <exception cref="Exception"></exception>
         /// <returns>A <see cref="ValueTask"/> which represents the completion of all registered events.</returns>
-        public static async ValueTask InvokeAsync(this AsyncEventHandlerDelegate asyncEventHandler, object? sender, AsyncEventArgs e, CancellationToken? cancellationToken = null)
+        public static async ValueTask InvokeAsync(this AsyncEventHandlerDelegate asyncEventHandler, object? sender, IAsyncEventArgs e, CancellationToken cancellationToken = default)
         {
             if (asyncEventHandler is null)
             {
                 return;
             }
 
-            cancellationToken ??= CancellationToken.None;
-            e.CancellationToken = cancellationToken.Value;
+            e.CancellationToken = cancellationToken;
 
-            cancellationToken.Value.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Delegate[]? callbacks = asyncEventHandler.GetInvocationList();
             Task[] tasks = new Task[callbacks.Length];
 
             for (int i = 0; i < callbacks.Length; i++)
             {
-                cancellationToken.Value.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
                 AsyncEventHandlerDelegate cb = (AsyncEventHandlerDelegate)callbacks[i];
                 tasks[i] = cb.Invoke(sender, e);
             }
@@ -77,25 +76,24 @@ namespace AsyncEventHandlers
         /// <exception cref="ObjectDisposedException"></exception>
         /// <exception cref="Exception"></exception>
         /// <returns>A <see cref="ValueTask"/> which represents the completion of all registered events.</returns>
-        public static async ValueTask InvokeAsync<TEventArgs>(this AsyncEventHandlerDelegate<TEventArgs> asyncEventHandler, object? sender, TEventArgs e, CancellationToken? cancellationToken = null)
-            where TEventArgs : AsyncEventArgs
+        public static async ValueTask InvokeAsync<TEventArgs>(this AsyncEventHandlerDelegate<TEventArgs> asyncEventHandler, object? sender, TEventArgs e, CancellationToken cancellationToken = default)
+            where TEventArgs : IAsyncEventArgs
         {
             if (asyncEventHandler is null)
             {
                 return;
             }
 
-            cancellationToken ??= CancellationToken.None;
-            e.CancellationToken = cancellationToken.Value;
+            e.CancellationToken = cancellationToken;
 
-            cancellationToken.Value.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
             Delegate[]? callbacks = asyncEventHandler.GetInvocationList();
             Task[] tasks = new Task[callbacks.Length];     
             
             for (int i = 0; i < callbacks.Length; i++)
             {
-                cancellationToken.Value.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
                 AsyncEventHandlerDelegate<TEventArgs> cb = (AsyncEventHandlerDelegate<TEventArgs>)callbacks[i];
                 tasks[i] = cb.Invoke(sender, e);
             }

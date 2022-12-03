@@ -14,8 +14,8 @@ The  ``AsyncEventHandler`` type is completely thread-safe, no matter how many ev
 
 Declaring an event:
 ```cs
-private readonly AsyncEventHandler<AsyncEventArgs> myEvent = new AsyncEventHandler<AsyncEventArgs>();
-public event AsyncEvent<AsyncEventArgs> MyEvent
+private readonly AsyncEventHandler myEvent = new AsyncEventHandler();
+public event AsyncEvent MyEvent
 {
     add { myEvent.Register(value); }
     remove { myEvent.Unregister(value); }
@@ -24,26 +24,26 @@ public event AsyncEvent<AsyncEventArgs> MyEvent
 
 You can also just expose the ``AsyncEventHandler`` struct directly but that way it is not treated as an C# event and subscribers outside of your class can even invoke your event.
 ```cs
-public AsyncEventHandler<AsyncEventArgs> MyEvent = new AsyncEventHandler();
-public AsyncEventHandler<AsyncEventArgs> AnotherEvent;  // You can even do this!
+public AsyncEventHandler MyEvent = new AsyncEventHandler();
+public AsyncEventHandler AnotherEvent;  // You can even do this!
 
 // Or with custom event args:
-public class MyAsyncEventArgs : AsyncEventArgs
+public class MyType
 {
     public string? Message { get; set; }
 }
 
-public AsyncEventHandler<MyAsyncEventArgs> MyCustomEvent = new AsyncEventHandler<MyAsyncEventArgs>();
+public AsyncEventHandler<MyType> MyCustomEvent = new AsyncEventHandler<MyType>();
 ```
 
 Registering/Unregistering to the event:
 ```cs
 class WebsocketServer
 {
-    public AsyncEventHandler<AsyncEventArgs> MyExposedEvent = new AsyncEventHandler<AsyncEventArgs>();
+    public AsyncEventHandler<MyType> MyExposedEvent = new AsyncEventHandler<MyType>();
 
-    private readonly AsyncEventHandler<AsyncEventArgs> myEvent = new AsyncEventHandler<AsyncEventArgs>();
-    public event AsyncEvent<AsyncEventArgs> MyEvent
+    private readonly AsyncEventHandler<MyType> myEvent = new AsyncEventHandler<MyType>();
+    public event AsyncEvent<MyType> MyEvent
     {
         add { myEvent.Register(value); }
         remove { myEvent.Unregister(value); }
@@ -61,9 +61,9 @@ ws.MyExposedEvent -= Ws_MyEvent;   // Unregister
 ws.MyExposedEvent.Register(Ws_MyEvent);
 ws.MyExposedEvent.Unregister(Ws_MyEvent);
 
-static Task Ws_MyEvent(object? sender, AsyncEventArgs e)
+static Task Ws_MyEvent(MyType data, CancellationToken cancellationToken)
 {
-    if (e.CancellationToken.IsCancellationRequested)
+    if (cancellationToken.IsCancellationRequested)
     {
         Console.WriteLine("The cancellation token was cancelled!");
     }
@@ -77,10 +77,10 @@ Invoking the event: \
 ```cs
 try
 {
-    await myEvent.InvokeAsync(this, new AsyncEventArgs());
+    await myEvent.InvokeAsync(new MyType());
     // or with a cancellation token
     var cts = new CancellationTokenSource();
-    await myEvent.InvokeAsync(this, new AsyncEventArgs(), cts.Token);
+    await myEvent.InvokeAsync(new MyType(), cts.Token);
 }
 catch (OperationCanceledException)
 {

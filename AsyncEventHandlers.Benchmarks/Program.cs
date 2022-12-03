@@ -11,24 +11,36 @@ namespace AsyncEventHandlers.Benchmarks
             BenchmarkRunner.Run<Program>();
         }
 
-        private static AsyncEventHandler<AsyncEventArgs> Struct_AsyncEventHandler = new AsyncEventHandler<AsyncEventArgs>();
-        private static event AsyncEventHandlerDelegate<AsyncEventArgs> Delegate_AsyncEventHandler;
+        private static AsyncEventHandler Struct_AsyncEventHandler = new AsyncEventHandler();
+        private static WeakAsyncEventHandler WeakAsyncEventHandler = new WeakAsyncEventHandler();
+        private static event AsyncEventHandlerDelegate<IAsyncEventArgs> Delegate_AsyncEventHandler;
+
+        private readonly List<object> eventSources = new List<object>();
 
         public Program()
         {
             for (int i = 0; i < 100; i++)
             {
+                eventSources.Add(new object());
+
+
                 Struct_AsyncEventHandler += Struct_AsyncEventHandler_Event;
+                WeakAsyncEventHandler.Register(eventSources[i], WeakAsyncEventHandler_Event);
                 Delegate_AsyncEventHandler += Delegate_AsyncEventHandler_Event;
             }
         }
 
-        private Task Struct_AsyncEventHandler_Event(object? sender, AsyncEventArgs e)
+        private Task Struct_AsyncEventHandler_Event(CancellationToken ct)
         {
             return Task.CompletedTask;
         }
 
-        private Task Delegate_AsyncEventHandler_Event(object? sender, AsyncEventArgs e)
+        private Task WeakAsyncEventHandler_Event(CancellationToken ct)
+        {
+            return Task.CompletedTask;
+        }
+
+        private Task Delegate_AsyncEventHandler_Event(object? sender, IAsyncEventArgs e)
         {
             return Task.CompletedTask;
         }
@@ -36,8 +48,12 @@ namespace AsyncEventHandlers.Benchmarks
 
         private Task Struct_Call()
         {
-            var args = new AsyncEventArgs();
-            return Struct_AsyncEventHandler.InvokeAsync(this, args);
+            return Struct_AsyncEventHandler.InvokeAsync();
+        }
+
+        private Task Weak_Call()
+        {
+            return WeakAsyncEventHandler.InvokeAsync();
         }
 
         private ValueTask Delegate_Call()
@@ -53,24 +69,30 @@ namespace AsyncEventHandlers.Benchmarks
         }
 
         [Benchmark]
+        public async Task Weak_Call_1()
+        {
+            await Weak_Call();
+        }
+
+        [Benchmark]
         public async Task Delegate_Call_1()
         {
             await Delegate_Call();
         }
 
-        [Benchmark]
-        public async Task Struct_Call_100()
-        {
-            for (int i = 0; i < 100; i++)
-                await Struct_Call();
-        }
+        //[Benchmark]
+        //public async Task Struct_Call_100()
+        //{
+        //    for (int i = 0; i < 100; i++)
+        //        await Struct_Call();
+        //}
 
-        [Benchmark]
-        public async Task Delegate_Call_100()
-        {
-            for (int i = 0; i < 100; i++)
-                await Delegate_Call();
-        }
+        //[Benchmark]
+        //public async Task Delegate_Call_100()
+        //{
+        //    for (int i = 0; i < 100; i++)
+        //        await Delegate_Call();
+        //}
     }
 
 }

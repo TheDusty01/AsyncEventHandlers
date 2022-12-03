@@ -1,52 +1,51 @@
-﻿namespace AsyncEventHandlers.Samples.Delegate
+﻿namespace AsyncEventHandlers.Samples.Delegate;
+
+public class Program
 {
-    public class Program
+
+    private static readonly CancellationTokenSource cts = new();
+
+    public static void Main()
     {
+        var ws = new FakeWebsocketServer();
 
-        private static readonly CancellationTokenSource cts = new();
+        ws.Started += Ws_Started;
+        ws.Started += Ws_Started_Second;
 
-        public static void Main()
-        {
-            var ws = new FakeWebsocketServer();
+        ws.ClientConnected += Ws_ClientConnected;
+        ws.MessageReceived += Ws_MessageReceived;
 
-            ws.Started += Ws_Started;
-            ws.Started += Ws_Started_Second;
+        ws.Run(cts.Token);
 
-            ws.ClientConnected += Ws_ClientConnected;
-            ws.MessageReceived += Ws_MessageReceived;
+        Console.WriteLine("Press any key to exit");
+        Console.ReadKey(true);
+    }
 
-            ws.Run(cts.Token);
+    private static Task Ws_Started(object? sender, IAsyncEventArgs e)
+    {
+        throw new Exception("Something went wrong!");
+    }
 
-            Console.WriteLine("Press any key to exit");
-            Console.ReadKey(true);
-        }
+    private static async Task Ws_Started_Second(object? sender, IAsyncEventArgs e)
+    {
+        // Simulate long running request (e.g. sending something to an api)
+        await Task.Delay(1000, e.CancellationToken);
+        Console.WriteLine("Second Started event done!");
+    }
 
-        private static Task Ws_Started(object? sender, AsyncEventArgs e)
-        {
-            throw new Exception("Something went wrong!");
-        }
+    private static Task Ws_ClientConnected(object? sender, ClientConnectedAsyncEventArgs e)
+    {
+        Console.WriteLine($"Client connected: {e.ClientId}");
 
-        private static async Task Ws_Started_Second(object? sender, AsyncEventArgs e)
-        {
-            // Simulate long running request (e.g. sending something to an api)
-            await Task.Delay(1000, e.CancellationToken);
-            Console.WriteLine("Second Started event done!");
-        }
+        // Cancel cts, the MessageRecieved shouldn't get executed afterwards
+        cts.Cancel();
 
-        private static Task Ws_ClientConnected(object? sender, ClientConnectedAsyncEventArgs e)
-        {
-            Console.WriteLine($"Client connected: {e.ClientId}");
+        return Task.CompletedTask;
+    }
 
-            // Cancel cts, the MessageRecieved shouldn't get executed afterwards
-            cts.Cancel();
-
-            return Task.CompletedTask;
-        }
-
-        private static Task Ws_MessageReceived(object? sender, MessageAsyncEventArgs e)
-        {
-            Console.WriteLine($"New message: {e.Message}");
-            return Task.CompletedTask;
-        }
+    private static Task Ws_MessageReceived(object? sender, MessageAsyncEventArgs e)
+    {
+        Console.WriteLine($"New message: {e.Message}");
+        return Task.CompletedTask;
     }
 }
